@@ -4,16 +4,16 @@ local Constants = ns.Constants
 local Comm = {}
 ns.Comm = Comm
 
-local function NormalizeSender(name)
-    if not name or name == "" then
-        return nil
-    end
-
-    return strlower(Ambiguate(name, "none"))
-end
-
 local function Trim(text)
     return text and text:match("^%s*(.-)%s*$") or ""
+end
+
+local function GetSenderLabel(name)
+    if not name or name == "" then
+        return "unknown"
+    end
+
+    return Ambiguate(name, "none")
 end
 
 local function SequenceHasDuplicates(sequence)
@@ -42,7 +42,7 @@ function Comm:EncodeSequence(sequence)
 end
 
 function Comm:EncodePanel(mode, sequence)
-    return ("%s|%s"):format(mode, self:EncodeSequence(sequence))
+    return ("FULL:%s:%s"):format(mode, self:EncodeSequence(sequence))
 end
 
 function Comm:DecodePanel(payload)
@@ -51,7 +51,11 @@ function Comm:DecodePanel(payload)
         return nil, nil, "empty"
     end
 
-    local mode, sequencePayload = payload:match("^(%a+)|(.+)$")
+    local command, mode, sequencePayload = payload:match("^(%u+):(%a+):(.+)$")
+    if command ~= "FULL" then
+        return nil, nil, "malformed"
+    end
+
     if not mode or not sequencePayload then
         return nil, nil, "malformed"
     end
@@ -115,14 +119,14 @@ function Comm:HandleAddonMessage(prefix, payload, channel, sender)
         return
     end
 
-    if sender and NormalizeSender(sender) == NormalizeSender(UnitName("player")) then
+    if sender and GetSenderLabel(sender) == GetSenderLabel(UnitName("player")) then
         return
     end
 
     local mode, sequence = self:DecodePanel(payload)
     if not mode or not sequence then
         ns.Core:DebugPrint(("Debug receive reject from %s: %s"):format(
-            NormalizeSender(sender) or "unknown",
+            GetSenderLabel(sender),
             "invalid payload"
         ))
         return
@@ -130,10 +134,10 @@ function Comm:HandleAddonMessage(prefix, payload, channel, sender)
 
     ns.Core:DebugPrint(("Debug receive: %s panel from %s [%s]"):format(
         mode == Constants.MODES.HEROIC and "Heroic" or "Normal",
-        NormalizeSender(sender) or "unknown",
+        GetSenderLabel(sender),
         self:EncodeSequence(sequence)
     ))
     ns.Core:SetSequence(sequence, true, mode)
-    ns.Display:RenderSequence(mode, sequence, ("Received from %s"):format(NormalizeSender(sender) or "unknown"))
+    ns.Display:RenderSequence(mode, sequence, ("Received from %s"):format(GetSenderLabel(sender)))
     ns.Controls:Refresh()
 end
