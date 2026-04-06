@@ -30,8 +30,6 @@ local function SequenceHasDuplicates(sequence)
 end
 
 function Comm:Initialize()
-    self.lastFingerprint = nil
-    self.lastFingerprintTime = 0
     C_ChatInfo.RegisterAddonMessagePrefix(Constants.ADDON_PREFIX)
 end
 
@@ -91,10 +89,6 @@ function Comm:DecodeSequence(payload, maxLength)
         return nil, "empty"
     end
 
-    if not payload:match("^%s*%d+%s*(,%s*%d+%s*)*$") then
-        return nil, "malformed"
-    end
-
     local sequence = {}
     for part in payload:gmatch("[^,]+") do
         local value = tonumber(Trim(part))
@@ -102,15 +96,13 @@ function Comm:DecodeSequence(payload, maxLength)
             return nil, "invalid_symbol"
         end
 
-        sequence[#sequence + 1] = value
+        if #sequence < maxLength then
+            sequence[#sequence + 1] = value
+        end
     end
 
     if #sequence == 0 then
         return nil, "empty"
-    end
-
-    if #sequence > maxLength then
-        return nil, "too_long"
     end
 
     if SequenceHasDuplicates(sequence) then
@@ -118,31 +110,6 @@ function Comm:DecodeSequence(payload, maxLength)
     end
 
     return sequence
-end
-
-function Comm:IsDuplicate(sender, payload)
-    local now = GetTime()
-    local fingerprint = ("%s|%s"):format(sender or "?", payload or "")
-    if self.lastFingerprint == fingerprint and (now - self.lastFingerprintTime) < 0.75 then
-        return true
-    end
-
-    self.lastFingerprint = fingerprint
-    self.lastFingerprintTime = now
-    return false
-end
-
-function Comm:CanAcceptSender(sender)
-    if not ns.Config:IsSenderLockEnabled() then
-        return true
-    end
-
-    local approvedSender = ns.Config:GetSenderName()
-    if not approvedSender then
-        return false
-    end
-
-    return NormalizeSender(sender) == NormalizeSender(approvedSender)
 end
 
 function Comm:BroadcastSequence(sequence, mode)
@@ -165,16 +132,12 @@ function Comm:HandleAddonMessage(prefix, payload, channel, sender)
         return
     end
 
-    if self:IsDuplicate(sender, payload) then
-        return
-    end
-
-    if not self:CanAcceptSender(sender) then
-        return
-    end
-
     local mode, sequence = self:DecodePanel(payload)
     if not mode or not sequence then
+        ns.Core:DebugPrint(("Debug receive reject from %s: %s"):format(
+            NormalizeSender(sender) or "unknown",
+            "invalid payload"
+        ))
         return
     end
 
