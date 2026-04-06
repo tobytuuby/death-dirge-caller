@@ -1,0 +1,15 @@
+## Interface: 120001, 120005
+## Title: DeathDirge
+## Notes: Click-driven raid helper for Midnight Falls memory calls.
+## Author: OpenAI
+## Version: 1.0.0
+## SavedVariables: DeathDirgeDB
+
+Bindings.xml
+Constants.lua
+Config.lua
+Minimap.lua
+Display.lua
+Comm.lua
+Controls.lua
+Core.lua
