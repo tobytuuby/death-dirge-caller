@@ -233,6 +233,50 @@ function Core:DebugPrint(message)
     Print(message)
 end
 
+function Core:SetSenderFromPanel(name)
+    local trimmed = name and name:match("^%s*(.-)%s*$") or ""
+    if trimmed == "" then
+        Print("Enter a sender name first.")
+        return
+    end
+
+    ns.Config:SetSenderName(trimmed)
+    Print("Approved sender set to " .. NormalizeName(trimmed) .. ".")
+    ns.Controls:Refresh()
+end
+
+function Core:ClearSenderFromPanel()
+    ns.Config:SetSenderName(nil)
+    Print("Approved sender cleared.")
+    ns.Controls:Refresh()
+end
+
+function Core:ToggleSenderLockFromPanel()
+    local enabled = not ns.Config:IsSenderLockEnabled()
+    ns.Config:SetSenderLockEnabled(enabled)
+    Print(enabled and "Sender lock enabled." or "Sender lock disabled.")
+    ns.Controls:Refresh()
+end
+
+function Core:SetTimerFromPanel(value)
+    local trimmed = value and value:match("^%s*(.-)%s*$") or ""
+    local seconds = tonumber(trimmed)
+    if not seconds or seconds <= 0 then
+        Print("Timer must be a positive number of seconds.")
+        return
+    end
+
+    ns.Config:SetTimer(seconds)
+    Print(("Auto-hide timer set to %.1f seconds."):format(seconds))
+    ns.Controls:Refresh()
+end
+
+function Core:DisableTimerFromPanel()
+    ns.Config:SetTimer(nil)
+    Print("Auto-hide timer disabled.")
+    ns.Controls:Refresh()
+end
+
 function Core:ResetPositions()
     ns.Config:ResetPositions()
     ns.Display:ResetPosition()
@@ -241,11 +285,8 @@ function Core:ResetPositions()
 end
 
 function Core:PrintHelp()
-    Print("Commands: /ddc, /ddc help, /ddc status, /ddc auto, /ddc normal, /ddc heroic")
-    Print("Sequence: /ddc clear, /ddc send, /ddc test")
-    Print("Frames: /ddc unlock, /ddc lock, /ddc resetpos")
-    Print("Timer: /ddc timer <seconds>, /ddc timer off")
-    Print("Sender: /ddc sender <name>, /ddc sender clear, /ddc senderlock on, /ddc senderlock off")
+    Print("Commands: /ddc, /ddc help, /ddc status, /ddc resetpos")
+    Print("All raid, timer, sender, and mode controls are available in the caller panel.")
 end
 
 function Core:PrintStatus()
@@ -307,7 +348,6 @@ end
 function Core:HandleSlashCommand(message)
     local command, rest = message:match("^(%S+)%s*(.-)$")
     command = command and command:lower() or ""
-    rest = rest or ""
 
     if command == "" then
         ns.Controls:Toggle()
@@ -318,40 +358,8 @@ function Core:HandleSlashCommand(message)
         self:PrintHelp()
     elseif command == "status" then
         self:PrintStatus()
-    elseif command == "auto" then
-        self:SetModePreference(Constants.MODES.AUTO)
-    elseif command == "normal" then
-        self:SetModePreference(Constants.MODES.NORMAL)
-    elseif command == "heroic" then
-        self:SetModePreference(Constants.MODES.HEROIC)
-    elseif command == "clear" then
-        self:ClearSequence()
-    elseif command == "send" then
-        self:SendSequence()
-    elseif command == "test" then
-        self:RunTest()
-    elseif command == "unlock" then
-        self:SetFramesLocked(false)
-    elseif command == "lock" then
-        self:SetFramesLocked(true)
     elseif command == "resetpos" then
         self:ResetPositions()
-    elseif command == "timer" then
-        self:HandleTimerCommand(rest)
-    elseif command == "sender" then
-        self:HandleSenderCommand(rest)
-    elseif command == "senderlock" then
-        if rest == "on" then
-            ns.Config:SetSenderLockEnabled(true)
-            Print("Sender lock enabled.")
-            ns.Controls:Refresh()
-        elseif rest == "off" then
-            ns.Config:SetSenderLockEnabled(false)
-            Print("Sender lock disabled.")
-            ns.Controls:Refresh()
-        else
-            Print("Use /ddc senderlock on or /ddc senderlock off.")
-        end
     else
         self:PrintHelp()
     end

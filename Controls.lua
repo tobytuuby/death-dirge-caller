@@ -170,6 +170,59 @@ function Controls:CreateFrame()
         ns.Core:SetFramesLocked(not ns.Config:IsDisplayLocked())
     end)
 
+    frame.senderLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    frame.senderLabel:SetText("Sender")
+
+    frame.senderEditBox = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+    frame.senderEditBox:SetAutoFocus(false)
+    frame.senderEditBox:SetHeight(22)
+    frame.senderEditBox:SetScript("OnEnterPressed", function(self)
+        ns.Core:SetSenderFromPanel(self:GetText())
+        self:ClearFocus()
+    end)
+
+    frame.senderSetButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.senderSetButton:SetText("Set")
+    frame.senderSetButton:SetScript("OnClick", function()
+        ns.Core:SetSenderFromPanel(frame.senderEditBox:GetText())
+    end)
+
+    frame.senderClearButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.senderClearButton:SetText("Clear")
+    frame.senderClearButton:SetScript("OnClick", function()
+        frame.senderEditBox:SetText("")
+        ns.Core:ClearSenderFromPanel()
+    end)
+
+    frame.senderLockButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.senderLockButton:SetScript("OnClick", function()
+        ns.Core:ToggleSenderLockFromPanel()
+    end)
+
+    frame.timerLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+    frame.timerLabel:SetText("Timer")
+
+    frame.timerEditBox = CreateFrame("EditBox", nil, frame, "InputBoxTemplate")
+    frame.timerEditBox:SetAutoFocus(false)
+    frame.timerEditBox:SetNumeric(false)
+    frame.timerEditBox:SetHeight(22)
+    frame.timerEditBox:SetScript("OnEnterPressed", function(self)
+        ns.Core:SetTimerFromPanel(self:GetText())
+        self:ClearFocus()
+    end)
+
+    frame.timerSetButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.timerSetButton:SetText("Set")
+    frame.timerSetButton:SetScript("OnClick", function()
+        ns.Core:SetTimerFromPanel(frame.timerEditBox:GetText())
+    end)
+
+    frame.timerOffButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.timerOffButton:SetText("Off")
+    frame.timerOffButton:SetScript("OnClick", function()
+        ns.Core:DisableTimerFromPanel()
+    end)
+
     frame.hintText = frame:CreateFontString(nil, "OVERLAY", "GameFontDisableSmall")
     frame.hintText:SetText("/ddc help for commands")
 
@@ -268,7 +321,7 @@ function Controls:Layout()
     local totalActionWidth = (actionWidth * 4) + lockWidth
     local actionSpacing = math.max(4, math.floor((contentWidth - totalActionWidth) / (#actions - 1)))
     local actionX = padding
-    local actionY = math.min(-168, -(height - 58))
+    local actionY = -168
 
     for index, button in ipairs(actions) do
         button:ClearAllPoints()
@@ -276,6 +329,46 @@ function Controls:Layout()
         button:SetPoint("TOPLEFT", frame, "TOPLEFT", actionX, actionY)
         actionX = actionX + actionWidths[index] + actionSpacing
     end
+
+    local fieldY = -206
+    local smallButtonWidth = 52
+    local senderLockWidth = 92
+    local senderEditWidth = math.max(120, contentWidth - (smallButtonWidth * 2) - senderLockWidth - 24)
+
+    frame.senderLabel:ClearAllPoints()
+    frame.senderLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", padding, fieldY)
+
+    frame.senderEditBox:ClearAllPoints()
+    frame.senderEditBox:SetWidth(senderEditWidth)
+    frame.senderEditBox:SetPoint("TOPLEFT", frame.senderLabel, "BOTTOMLEFT", 0, -4)
+
+    frame.senderSetButton:ClearAllPoints()
+    frame.senderSetButton:SetSize(smallButtonWidth, 22)
+    frame.senderSetButton:SetPoint("LEFT", frame.senderEditBox, "RIGHT", 6, 0)
+
+    frame.senderClearButton:ClearAllPoints()
+    frame.senderClearButton:SetSize(smallButtonWidth, 22)
+    frame.senderClearButton:SetPoint("LEFT", frame.senderSetButton, "RIGHT", 6, 0)
+
+    frame.senderLockButton:ClearAllPoints()
+    frame.senderLockButton:SetSize(senderLockWidth, 22)
+    frame.senderLockButton:SetPoint("LEFT", frame.senderClearButton, "RIGHT", 6, 0)
+
+    frame.timerLabel:ClearAllPoints()
+    frame.timerLabel:SetPoint("TOPLEFT", frame.senderEditBox, "BOTTOMLEFT", 0, -12)
+
+    local timerEditWidth = math.max(80, contentWidth - 116)
+    frame.timerEditBox:ClearAllPoints()
+    frame.timerEditBox:SetWidth(timerEditWidth)
+    frame.timerEditBox:SetPoint("TOPLEFT", frame.timerLabel, "BOTTOMLEFT", 0, -4)
+
+    frame.timerSetButton:ClearAllPoints()
+    frame.timerSetButton:SetSize(52, 22)
+    frame.timerSetButton:SetPoint("LEFT", frame.timerEditBox, "RIGHT", 6, 0)
+
+    frame.timerOffButton:ClearAllPoints()
+    frame.timerOffButton:SetSize(52, 22)
+    frame.timerOffButton:SetPoint("LEFT", frame.timerSetButton, "RIGHT", 6, 0)
 
     frame.hintText:ClearAllPoints()
     frame.hintText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", padding, 12)
@@ -331,6 +424,9 @@ function Controls:Refresh()
     self.frame.senderText:SetText(senderLabel)
     self.frame.sequenceText:SetText("Sequence: " .. SequenceToText(sequence))
     self.frame.lockButton:SetText(ns.Config:IsDisplayLocked() and "Unlock Frames" or "Lock Frames")
+    self.frame.senderEditBox:SetText(ns.Config:GetSenderName() or "")
+    self.frame.senderLockButton:SetText(ns.Config:IsSenderLockEnabled() and "Lock: On" or "Lock: Off")
+    self.frame.timerEditBox:SetText(ns.Config:IsTimerEnabled() and tostring(ns.Config:GetTimerSeconds()) or "")
 
     for _, button in ipairs(self.frame.modeButtons) do
         button:SetEnabled(button.modeKey ~= modePreference)
