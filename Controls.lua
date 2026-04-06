@@ -285,7 +285,7 @@ function Controls:Layout()
     frame.modeText:ClearAllPoints()
     frame.modeText:SetPoint("TOPLEFT", frame.title, "BOTTOMLEFT", 0, -6)
 
-    local modeButtonsTop = -42
+    local modeButtonsTop = -48
     local modeButtonSpacing = 6
     local modeButtonWidth = math.max(64, math.floor((contentWidth - (modeButtonSpacing * 2)) / 3))
     local modeButtonX = padding
