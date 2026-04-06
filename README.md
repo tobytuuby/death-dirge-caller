@@ -13,9 +13,12 @@ Retail World of Warcraft addon for the Midnight Falls memory mechanic in March o
 
 ## Installation
 
-1. Copy the `DeathDirge` folder into `World of Warcraft/_retail_/Interface/AddOns/`.
-2. Launch or reload WoW.
-3. Enable `DeathDirge` on the addon list if needed.
+1. Download and extract `DeathDirge.zip` from the repository.
+2. Copy the extracted `DeathDirge` folder into `World of Warcraft/_retail_/Interface/AddOns/`.
+3. Launch or reload WoW.
+4. Enable `DeathDirge` on the addon list if needed.
+
+If you download the GitHub source ZIP instead, GitHub will wrap the files in a repo-named folder. In that case, rename the extracted addon folder to `DeathDirge` before placing it in `AddOns`.
 
 ## Commands
 
