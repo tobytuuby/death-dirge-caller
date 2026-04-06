@@ -23,6 +23,7 @@ If you download the GitHub source ZIP instead, GitHub will wrap the files in a r
 
 - `/ddc`
 - `/ddc help`
+- `/ddc status`
 - `/ddc resetpos`
 
 ## Notes

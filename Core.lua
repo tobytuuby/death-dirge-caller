@@ -1,4 +1,4 @@
-local ADDON_NAME, ns = ...
+local _, ns = ...
 
 local Constants = ns.Constants
 
@@ -148,9 +148,9 @@ function Core:SendSequence()
     end
 
     self.sequenceMode = self:GetActiveMode()
-    local ok, result = ns.Comm:BroadcastSequence(self.sequence, self.sequenceMode)
+    local ok, errorMessage = ns.Comm:BroadcastSequence(self.sequence, self.sequenceMode)
     if not ok then
-        Print(result)
+        Print(errorMessage)
         return
     end
 

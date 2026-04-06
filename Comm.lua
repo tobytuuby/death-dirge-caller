@@ -53,25 +53,12 @@ function Comm:DecodePanel(payload)
 
     local mode, sequencePayload = payload:match("^(%a+)|(.+)$")
     if not mode or not sequencePayload then
-        -- Accept the short token format too if another updated client sends it.
-        mode, sequencePayload = payload:match("^(%a+):(.+)$")
-        if not mode or not sequencePayload then
-            return nil, nil, "malformed"
-        end
+        return nil, nil, "malformed"
+    end
 
-        mode = strupper(Trim(mode))
-        if mode == "N" then
-            mode = Constants.MODES.NORMAL
-        elseif mode == "H" then
-            mode = Constants.MODES.HEROIC
-        else
-            return nil, nil, "invalid_mode"
-        end
-    else
-        mode = strlower(Trim(mode))
-        if mode ~= Constants.MODES.NORMAL and mode ~= Constants.MODES.HEROIC then
-            return nil, nil, "invalid_mode"
-        end
+    mode = strlower(Trim(mode))
+    if mode ~= Constants.MODES.NORMAL and mode ~= Constants.MODES.HEROIC then
+        return nil, nil, "invalid_mode"
     end
 
     local maxLength = mode == Constants.MODES.HEROIC and Constants.MAX_SEQUENCE or Constants.NORMAL_SEQUENCE
