@@ -7,7 +7,6 @@ Retail World of Warcraft addon for the Midnight Falls memory mechanic in March o
 - Click-driven caller panel for building the memory sequence
 - Boss-centered symbol display for manually selected Normal and Heroic layouts
 - Raid addon-message broadcast and receive
-- Sender validation and optional sender lock
 - Movable and resizable display and caller panel
 - Minimap button to open or hide the caller panel
 

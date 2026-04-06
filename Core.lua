@@ -22,10 +22,6 @@ local function GetMaxSequenceForMode(mode)
     return mode == Constants.MODES.HEROIC and Constants.MAX_SEQUENCE or Constants.NORMAL_SEQUENCE
 end
 
-local function NormalizeName(name)
-    return name and Ambiguate(name, "none") or nil
-end
-
 local function FormatSequenceForChat(sequence)
     local parts = {}
     for _, value in ipairs(sequence) do
@@ -208,31 +204,6 @@ function Core:DebugPrint(message)
     Print(message)
 end
 
-function Core:SetSenderFromPanel(name)
-    local trimmed = name and name:match("^%s*(.-)%s*$") or ""
-    if trimmed == "" then
-        Print("Enter a sender name first.")
-        return
-    end
-
-    ns.Config:SetSenderName(trimmed)
-    Print("Approved sender set to " .. NormalizeName(trimmed) .. ".")
-    ns.Controls:Refresh()
-end
-
-function Core:ClearSenderFromPanel()
-    ns.Config:SetSenderName(nil)
-    Print("Approved sender cleared.")
-    ns.Controls:Refresh()
-end
-
-function Core:ToggleSenderLockFromPanel()
-    local enabled = not ns.Config:IsSenderLockEnabled()
-    ns.Config:SetSenderLockEnabled(enabled)
-    Print(enabled and "Sender lock enabled." or "Sender lock disabled.")
-    ns.Controls:Refresh()
-end
-
 function Core:SetTimerFromPanel(value)
     local trimmed = value and value:match("^%s*(.-)%s*$") or ""
     local seconds = tonumber(trimmed)
@@ -261,66 +232,21 @@ end
 
 function Core:PrintHelp()
     Print("Commands: /ddc, /ddc help, /ddc status, /ddc resetpos")
-    Print("Mode, raid, timer, and sender controls are available in the caller panel.")
+    Print("Mode, raid, and timer controls are available in the caller panel.")
 end
 
 function Core:PrintStatus()
     local timerText = ns.Config:IsTimerEnabled() and tostring(ns.Config:GetTimerSeconds()) .. "s" or "off"
-    local senderText = ns.Config:GetSenderName() or "none"
 
     Print(("Active mode: %s"):format(GetModeLabel(self:GetActiveMode())))
     Print(("Mode preference: %s"):format(GetModeLabel(ns.Config:GetModePreference())))
     Print(("Sequence length: %d/%d"):format(#self.sequence, GetMaxSequenceForMode(self:GetActiveMode())))
     Print(("Timer: %s"):format(timerText))
-    Print(("Sender lock: %s"):format(ns.Config:IsSenderLockEnabled() and ("on (" .. senderText .. ")") or "off"))
     Print(("Frames: %s"):format(ns.Config:IsDisplayLocked() and "locked" or "unlocked"))
 end
 
-function Core:HandleSenderCommand(argument)
-    local trimmed = argument and argument:match("^%s*(.-)%s*$") or ""
-    if trimmed == "" then
-        local sender = ns.Config:GetSenderName() or "none"
-        Print("Approved sender: " .. sender)
-        return
-    end
-
-    if trimmed == "clear" then
-        ns.Config:SetSenderName(nil)
-        Print("Approved sender cleared.")
-        ns.Controls:Refresh()
-        return
-    end
-
-    ns.Config:SetSenderName(trimmed)
-    Print("Approved sender set to " .. NormalizeName(trimmed) .. ".")
-    ns.Controls:Refresh()
-end
-
-function Core:HandleTimerCommand(argument)
-    local trimmed = argument and argument:match("^%s*(.-)%s*$") or ""
-    if trimmed == "" then
-        self:PrintStatus()
-        return
-    end
-
-    if trimmed == "off" then
-        ns.Config:SetTimer(nil)
-        Print("Auto-hide timer disabled.")
-        return
-    end
-
-    local seconds = tonumber(trimmed)
-    if not seconds or seconds <= 0 then
-        Print("Timer must be a positive number of seconds, or use /ddc timer off.")
-        return
-    end
-
-    ns.Config:SetTimer(seconds)
-    Print(("Auto-hide timer set to %.1f seconds."):format(seconds))
-end
-
 function Core:HandleSlashCommand(message)
-    local command, rest = message:match("^(%S+)%s*(.-)$")
+    local command = message:match("^(%S+)")
     command = command and command:lower() or ""
 
     if command == "" then

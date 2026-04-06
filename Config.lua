@@ -8,8 +8,6 @@ local defaults = {
     modePreference = Constants.MODES.NORMAL,
     timerSeconds = Constants.DEFAULT_TIMER_SECONDS,
     timerEnabled = true,
-    senderLockEnabled = false,
-    senderName = nil,
     displayLocked = false,
     advancedExpanded = false,
     displayPoint = nil,
@@ -123,26 +121,6 @@ end
 
 function Config:GetTimerSeconds()
     return self.db.timerSeconds
-end
-
-function Config:IsSenderLockEnabled()
-    return self.db.senderLockEnabled
-end
-
-function Config:SetSenderLockEnabled(enabled)
-    self.db.senderLockEnabled = enabled and true or false
-end
-
-function Config:GetSenderName()
-    return self.db.senderName
-end
-
-function Config:SetSenderName(name)
-    if name and name ~= "" then
-        self.db.senderName = Ambiguate(name, "none")
-    else
-        self.db.senderName = nil
-    end
 end
 
 function Config:IsDisplayLocked()
