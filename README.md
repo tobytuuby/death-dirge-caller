@@ -23,20 +23,7 @@ If you download the GitHub source ZIP instead, GitHub will wrap the files in a r
 
 - `/ddc`
 - `/ddc help`
-- `/ddc normal`
-- `/ddc heroic`
-- `/ddc clear`
-- `/ddc send`
-- `/ddc test`
-- `/ddc unlock`
-- `/ddc lock`
 - `/ddc resetpos`
-- `/ddc timer <seconds>`
-- `/ddc timer off`
-- `/ddc sender <name>`
-- `/ddc sender clear`
-- `/ddc senderlock on`
-- `/ddc senderlock off`
 
 ## Notes
 
