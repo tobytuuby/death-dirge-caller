@@ -101,7 +101,6 @@ function Controls:CreateFrame()
 
     frame.modeButtons = {}
     local modeConfigs = {
-        { key = Constants.MODES.AUTO, label = "Auto" },
         { key = Constants.MODES.NORMAL, label = "Normal" },
         { key = Constants.MODES.HEROIC, label = "Heroic" },
     }
@@ -287,7 +286,7 @@ function Controls:Layout()
 
     local modeButtonsTop = -48
     local modeButtonSpacing = 6
-    local modeButtonWidth = math.max(64, math.floor((contentWidth - (modeButtonSpacing * 2)) / 3))
+    local modeButtonWidth = math.max(96, math.floor((contentWidth - modeButtonSpacing) / 2))
     local modeButtonX = padding
     for _, button in ipairs(frame.modeButtons) do
         button:ClearAllPoints()
@@ -443,9 +442,7 @@ function Controls:Refresh()
         senderLabel = "Sender Lock: OFF"
     end
 
-    if modePreference == Constants.MODES.AUTO then
-        modeLabel = ("Auto (%s)"):format(activeMode == Constants.MODES.HEROIC and "Heroic" or "Normal")
-    elseif modePreference == Constants.MODES.HEROIC then
+    if modePreference == Constants.MODES.HEROIC then
         modeLabel = "Heroic"
     else
         modeLabel = "Normal"

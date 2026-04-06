@@ -5,7 +5,7 @@ local Config = {}
 ns.Config = Config
 
 local defaults = {
-    modePreference = Constants.MODES.AUTO,
+    modePreference = Constants.MODES.NORMAL,
     timerSeconds = Constants.DEFAULT_TIMER_SECONDS,
     timerEnabled = true,
     senderLockEnabled = false,

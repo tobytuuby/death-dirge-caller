@@ -7,7 +7,6 @@ local Core = ns.Core
 
 Core.sequence = {}
 Core.currentMode = Constants.MODES.NORMAL
-Core.lastAutoMode = Constants.MODES.NORMAL
 Core.sequenceMode = Constants.MODES.NORMAL
 Core.testPreviewActive = false
 
@@ -68,14 +67,7 @@ function Core:SetSequence(sequence, skipRender, mode)
 end
 
 function Core:RefreshMode()
-    local detectedMode, info = self:DetectMode()
-    self.lastAutoMode = detectedMode or self.lastAutoMode
-
-    if ns.Config:GetModePreference() == Constants.MODES.AUTO then
-        self.currentMode = self.lastAutoMode
-    else
-        self.currentMode = ns.Config:GetModePreference()
-    end
+    self.currentMode = ns.Config:GetModePreference()
 
     if self.sequenceMode ~= Constants.MODES.NORMAL and self.sequenceMode ~= Constants.MODES.HEROIC then
         self.sequenceMode = self.currentMode
@@ -96,19 +88,6 @@ function Core:RefreshMode()
         ns.Display:RenderSequence(self:GetSequenceMode(), self.sequence, "Mode refreshed")
     end
 
-    return info
-end
-
-function Core:DetectMode()
-    local _, instanceType, difficultyID = GetInstanceInfo()
-    if instanceType == "raid" then
-        local mode = Constants.MODE_BY_DIFFICULTY_ID[difficultyID]
-        if mode then
-            return mode, ("Auto mode detected: %s (difficulty ID %d)"):format(GetModeLabel(mode), difficultyID)
-        end
-    end
-
-    return self.lastAutoMode or Constants.MODES.NORMAL, "Auto mode fallback is using the last known raid mode."
 end
 
 function Core:GetActiveMode()
@@ -117,12 +96,8 @@ end
 
 function Core:SetModePreference(mode)
     ns.Config:SetModePreference(mode)
-    local info = self:RefreshMode()
-    if mode == Constants.MODES.AUTO then
-        Print(info)
-    else
-        Print(("Manual mode set to %s."):format(GetModeLabel(mode)))
-    end
+    self:RefreshMode()
+    Print(("Mode set to %s."):format(GetModeLabel(mode)))
 end
 
 function Core:AppendSymbol(symbolID)
@@ -286,16 +261,15 @@ end
 
 function Core:PrintHelp()
     Print("Commands: /ddc, /ddc help, /ddc status, /ddc resetpos")
-    Print("All raid, timer, sender, and mode controls are available in the caller panel.")
+    Print("Mode, raid, timer, and sender controls are available in the caller panel.")
 end
 
 function Core:PrintStatus()
-    local autoDetected = self.lastAutoMode or Constants.MODES.NORMAL
     local timerText = ns.Config:IsTimerEnabled() and tostring(ns.Config:GetTimerSeconds()) .. "s" or "off"
     local senderText = ns.Config:GetSenderName() or "none"
 
     Print(("Active mode: %s"):format(GetModeLabel(self:GetActiveMode())))
-    Print(("Mode preference: %s (auto detected: %s)"):format(ns.Config:GetModePreference(), GetModeLabel(autoDetected)))
+    Print(("Mode preference: %s"):format(GetModeLabel(ns.Config:GetModePreference())))
     Print(("Sequence length: %d/%d"):format(#self.sequence, GetMaxSequenceForMode(self:GetActiveMode())))
     Print(("Timer: %s"):format(timerText))
     Print(("Sender lock: %s"):format(ns.Config:IsSenderLockEnabled() and ("on (" .. senderText .. ")") or "off"))
@@ -373,9 +347,6 @@ function Core:OnEvent(event, ...)
         ns.Controls:Initialize()
         ns.MinimapButton:Initialize()
         self:RefreshMode()
-        self:RegisterEvent("PLAYER_ENTERING_WORLD")
-        self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-        self:RegisterEvent("GROUP_ROSTER_UPDATE")
         self:RegisterEvent("CHAT_MSG_ADDON")
 
         SLASH_DEATHDIRGE1 = Constants.SLASH_ALIASES[1]
@@ -383,8 +354,6 @@ function Core:OnEvent(event, ...)
         SlashCmdList.DEATHDIRGE = function(msg)
             self:HandleSlashCommand(msg or "")
         end
-    elseif event == "PLAYER_ENTERING_WORLD" or event == "ZONE_CHANGED_NEW_AREA" or event == "GROUP_ROSTER_UPDATE" then
-        self:RefreshMode()
     elseif event == "CHAT_MSG_ADDON" then
         ns.Comm:HandleAddonMessage(...)
     end

@@ -5,7 +5,7 @@ Retail World of Warcraft addon for the Midnight Falls memory mechanic in March o
 ## Features
 
 - Click-driven caller panel for building the memory sequence
-- Boss-centered symbol display for Normal and Heroic layouts
+- Boss-centered symbol display for manually selected Normal and Heroic layouts
 - Raid addon-message broadcast and receive
 - Sender validation and optional sender lock
 - Movable and resizable display and caller panel
@@ -24,7 +24,6 @@ If you download the GitHub source ZIP instead, GitHub will wrap the files in a r
 
 - `/ddc`
 - `/ddc help`
-- `/ddc auto`
 - `/ddc normal`
 - `/ddc heroic`
 - `/ddc clear`
@@ -44,3 +43,4 @@ If you download the GitHub source ZIP instead, GitHub will wrap the files in a r
 
 - The addon is intended for raid use and broadcasts to the `RAID` addon-message channel.
 - The caller panel starts hidden and can be opened from the minimap icon or with `/ddc`.
+- Difficulty mode is selected manually in the caller panel.

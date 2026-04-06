@@ -8,13 +8,8 @@ ns.Constants = {
         "/deathdirge",
     },
     MODES = {
-        AUTO = "auto",
         NORMAL = "normal",
         HEROIC = "heroic",
-    },
-    MODE_BY_DIFFICULTY_ID = {
-        [14] = "normal", -- Normal Raid
-        [15] = "heroic", -- Heroic Raid
     },
     MAX_SEQUENCE = 5,
     NORMAL_SEQUENCE = 3,
