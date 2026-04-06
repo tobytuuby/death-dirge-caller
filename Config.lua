@@ -11,6 +11,7 @@ local defaults = {
     senderLockEnabled = false,
     senderName = nil,
     displayLocked = false,
+    advancedExpanded = false,
     displayPoint = nil,
     controlsPoint = nil,
     displaySize = nil,
@@ -150,6 +151,14 @@ end
 
 function Config:SetDisplayLocked(locked)
     self.db.displayLocked = locked and true or false
+end
+
+function Config:IsAdvancedExpanded()
+    return self.db.advancedExpanded and true or false
+end
+
+function Config:SetAdvancedExpanded(expanded)
+    self.db.advancedExpanded = expanded and true or false
 end
 
 function Config:GetPoint(key)

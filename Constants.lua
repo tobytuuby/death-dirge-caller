@@ -43,9 +43,9 @@ ns.Constants = {
     },
     CONTROLS = {
         frameWidth = 420,
-        frameHeight = 300,
+        frameHeight = 240,
         minWidth = 360,
-        minHeight = 280,
+        minHeight = 220,
         padding = 12,
         topButtonWidth = 58,
         modeButtonHeight = 22,

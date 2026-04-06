@@ -170,6 +170,13 @@ function Controls:CreateFrame()
         ns.Core:SetFramesLocked(not ns.Config:IsDisplayLocked())
     end)
 
+    frame.advancedButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    frame.advancedButton:SetHeight(Constants.CONTROLS.actionButtonHeight)
+    frame.advancedButton:SetScript("OnClick", function()
+        ns.Config:SetAdvancedExpanded(not ns.Config:IsAdvancedExpanded())
+        Controls:Refresh()
+    end)
+
     frame.senderLabel = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     frame.senderLabel:SetText("Sender")
 
@@ -266,7 +273,6 @@ function Controls:Layout()
     local frame = self.frame
     local padding = Constants.CONTROLS.padding
     local width = frame:GetWidth()
-    local height = frame:GetHeight()
     local contentWidth = width - (padding * 2)
     local topY = -padding
 
@@ -330,48 +336,65 @@ function Controls:Layout()
         actionX = actionX + actionWidths[index] + actionSpacing
     end
 
-    local fieldY = -206
-    local smallButtonWidth = 52
-    local senderLockWidth = 92
-    local senderEditWidth = math.max(120, contentWidth - (smallButtonWidth * 2) - senderLockWidth - 24)
+    local advancedY = -206
+    frame.advancedButton:ClearAllPoints()
+    frame.advancedButton:SetWidth(contentWidth)
+    frame.advancedButton:SetPoint("TOPLEFT", frame, "TOPLEFT", padding, advancedY)
 
-    frame.senderLabel:ClearAllPoints()
-    frame.senderLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", padding, fieldY)
+    local bottomY = advancedY - Constants.CONTROLS.actionButtonHeight
+    local advancedExpanded = ns.Config:IsAdvancedExpanded()
 
-    frame.senderEditBox:ClearAllPoints()
-    frame.senderEditBox:SetWidth(senderEditWidth)
-    frame.senderEditBox:SetPoint("TOPLEFT", frame.senderLabel, "BOTTOMLEFT", 0, -4)
+    if advancedExpanded then
+        local fieldY = advancedY - 34
+        local smallButtonWidth = 52
+        local senderLockWidth = 92
+        local senderEditWidth = math.max(120, contentWidth - (smallButtonWidth * 2) - senderLockWidth - 24)
 
-    frame.senderSetButton:ClearAllPoints()
-    frame.senderSetButton:SetSize(smallButtonWidth, 22)
-    frame.senderSetButton:SetPoint("LEFT", frame.senderEditBox, "RIGHT", 6, 0)
+        frame.senderLabel:ClearAllPoints()
+        frame.senderLabel:SetPoint("TOPLEFT", frame, "TOPLEFT", padding, fieldY)
 
-    frame.senderClearButton:ClearAllPoints()
-    frame.senderClearButton:SetSize(smallButtonWidth, 22)
-    frame.senderClearButton:SetPoint("LEFT", frame.senderSetButton, "RIGHT", 6, 0)
+        frame.senderEditBox:ClearAllPoints()
+        frame.senderEditBox:SetWidth(senderEditWidth)
+        frame.senderEditBox:SetPoint("TOPLEFT", frame.senderLabel, "BOTTOMLEFT", 0, -4)
 
-    frame.senderLockButton:ClearAllPoints()
-    frame.senderLockButton:SetSize(senderLockWidth, 22)
-    frame.senderLockButton:SetPoint("LEFT", frame.senderClearButton, "RIGHT", 6, 0)
+        frame.senderSetButton:ClearAllPoints()
+        frame.senderSetButton:SetSize(smallButtonWidth, 22)
+        frame.senderSetButton:SetPoint("LEFT", frame.senderEditBox, "RIGHT", 6, 0)
 
-    frame.timerLabel:ClearAllPoints()
-    frame.timerLabel:SetPoint("TOPLEFT", frame.senderEditBox, "BOTTOMLEFT", 0, -12)
+        frame.senderClearButton:ClearAllPoints()
+        frame.senderClearButton:SetSize(smallButtonWidth, 22)
+        frame.senderClearButton:SetPoint("LEFT", frame.senderSetButton, "RIGHT", 6, 0)
 
-    local timerEditWidth = math.max(80, contentWidth - 116)
-    frame.timerEditBox:ClearAllPoints()
-    frame.timerEditBox:SetWidth(timerEditWidth)
-    frame.timerEditBox:SetPoint("TOPLEFT", frame.timerLabel, "BOTTOMLEFT", 0, -4)
+        frame.senderLockButton:ClearAllPoints()
+        frame.senderLockButton:SetSize(senderLockWidth, 22)
+        frame.senderLockButton:SetPoint("LEFT", frame.senderClearButton, "RIGHT", 6, 0)
 
-    frame.timerSetButton:ClearAllPoints()
-    frame.timerSetButton:SetSize(52, 22)
-    frame.timerSetButton:SetPoint("LEFT", frame.timerEditBox, "RIGHT", 6, 0)
+        frame.timerLabel:ClearAllPoints()
+        frame.timerLabel:SetPoint("TOPLEFT", frame.senderEditBox, "BOTTOMLEFT", 0, -12)
 
-    frame.timerOffButton:ClearAllPoints()
-    frame.timerOffButton:SetSize(52, 22)
-    frame.timerOffButton:SetPoint("LEFT", frame.timerSetButton, "RIGHT", 6, 0)
+        local timerEditWidth = math.max(80, contentWidth - 116)
+        frame.timerEditBox:ClearAllPoints()
+        frame.timerEditBox:SetWidth(timerEditWidth)
+        frame.timerEditBox:SetPoint("TOPLEFT", frame.timerLabel, "BOTTOMLEFT", 0, -4)
+
+        frame.timerSetButton:ClearAllPoints()
+        frame.timerSetButton:SetSize(52, 22)
+        frame.timerSetButton:SetPoint("LEFT", frame.timerEditBox, "RIGHT", 6, 0)
+
+        frame.timerOffButton:ClearAllPoints()
+        frame.timerOffButton:SetSize(52, 22)
+        frame.timerOffButton:SetPoint("LEFT", frame.timerSetButton, "RIGHT", 6, 0)
+
+        bottomY = fieldY - 72
+    end
 
     frame.hintText:ClearAllPoints()
-    frame.hintText:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", padding, 12)
+    frame.hintText:SetPoint("TOPLEFT", frame, "TOPLEFT", padding, bottomY - 12)
+
+    local targetHeight = math.max(Constants.CONTROLS.minHeight, math.abs(bottomY) + 42)
+    if math.abs(frame:GetHeight() - targetHeight) > 1 then
+        frame:SetHeight(targetHeight)
+    end
 
     frame.resizeHandle:ClearAllPoints()
     frame.resizeHandle:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 4)
@@ -409,9 +432,9 @@ function Controls:Refresh()
 
     local sequence = ns.Core:GetSequence()
     local activeMode = ns.Core:GetActiveMode()
-    local modeText = activeMode == Constants.MODES.HEROIC and "Heroic" or "Normal"
     local modePreference = ns.Config:GetModePreference()
     local senderLabel
+    local modeLabel
 
     if ns.Config:IsSenderLockEnabled() then
         senderLabel = ns.Config:GetSenderName() or "No approved sender"
@@ -420,13 +443,37 @@ function Controls:Refresh()
         senderLabel = "Sender Lock: OFF"
     end
 
-    self.frame.modeText:SetText(("Mode: %s (%s)"):format(modeText, modePreference))
+    if modePreference == Constants.MODES.AUTO then
+        modeLabel = ("Auto (%s)"):format(activeMode == Constants.MODES.HEROIC and "Heroic" or "Normal")
+    elseif modePreference == Constants.MODES.HEROIC then
+        modeLabel = "Heroic"
+    else
+        modeLabel = "Normal"
+    end
+
+    self.frame.modeText:SetText("Mode: " .. modeLabel)
     self.frame.senderText:SetText(senderLabel)
     self.frame.sequenceText:SetText("Sequence: " .. SequenceToText(sequence))
     self.frame.lockButton:SetText(ns.Config:IsDisplayLocked() and "Unlock Frames" or "Lock Frames")
+    self.frame.advancedButton:SetText(ns.Config:IsAdvancedExpanded() and "Advanced: Hide" or "Advanced: Show")
     self.frame.senderEditBox:SetText(ns.Config:GetSenderName() or "")
     self.frame.senderLockButton:SetText(ns.Config:IsSenderLockEnabled() and "Lock: On" or "Lock: Off")
     self.frame.timerEditBox:SetText(ns.Config:IsTimerEnabled() and tostring(ns.Config:GetTimerSeconds()) or "")
+
+    local advancedWidgets = {
+        self.frame.senderLabel,
+        self.frame.senderEditBox,
+        self.frame.senderSetButton,
+        self.frame.senderClearButton,
+        self.frame.senderLockButton,
+        self.frame.timerLabel,
+        self.frame.timerEditBox,
+        self.frame.timerSetButton,
+        self.frame.timerOffButton,
+    }
+    for _, widget in ipairs(advancedWidgets) do
+        widget:SetShown(ns.Config:IsAdvancedExpanded())
+    end
 
     for _, button in ipairs(self.frame.modeButtons) do
         button:SetEnabled(button.modeKey ~= modePreference)
