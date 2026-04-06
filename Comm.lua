@@ -125,18 +125,9 @@ function Comm:HandleAddonMessage(prefix, payload, channel, sender)
 
     local mode, sequence = self:DecodePanel(payload)
     if not mode or not sequence then
-        ns.Core:DebugPrint(("Debug receive reject from %s: %s"):format(
-            GetSenderLabel(sender),
-            "invalid payload"
-        ))
         return
     end
 
-    ns.Core:DebugPrint(("Debug receive: %s panel from %s [%s]"):format(
-        mode == Constants.MODES.HEROIC and "Heroic" or "Normal",
-        GetSenderLabel(sender),
-        self:EncodeSequence(sequence)
-    ))
     ns.Core:SetSequence(sequence, true, mode)
     ns.Display:RenderSequence(mode, sequence, ("Received from %s"):format(GetSenderLabel(sender)))
     ns.Controls:Refresh()

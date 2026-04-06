@@ -200,10 +200,6 @@ function Core:ToggleAddonUI()
     ns.Controls:Toggle()
 end
 
-function Core:DebugPrint(message)
-    Print(message)
-end
-
 function Core:SetTimerFromPanel(value)
     local trimmed = value and value:match("^%s*(.-)%s*$") or ""
     local seconds = tonumber(trimmed)
