@@ -18,6 +18,7 @@ jobs:
 
       - name: Build DeathDirge.zip
         run: |
+          ASSET_NAME="ddc-v${{ github.event.release.tag_name }}.zip"
           mkdir -p build/DeathDirge
           rsync -av \
             --exclude '.git' \
@@ -25,9 +26,9 @@ jobs:
             --exclude 'DeathDirge.zip' \
             ./ build/DeathDirge/
           cd build
-          zip -r DeathDirge.zip DeathDirge
+          zip -r "$ASSET_NAME" DeathDirge
 
       - name: Attach zip to release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/DeathDirge.zip
+          files: build/ddc-v${{ github.event.release.tag_name }}.zip
