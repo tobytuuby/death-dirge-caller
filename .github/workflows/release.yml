@@ -1,0 +1,33 @@
+name: Build Release Zip
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Build DeathDirge.zip
+        run: |
+          mkdir -p build/DeathDirge
+          rsync -av \
+            --exclude '.git' \
+            --exclude '.github' \
+            --exclude 'DeathDirge.zip' \
+            ./ build/DeathDirge/
+          cd build
+          zip -r DeathDirge.zip DeathDirge
+
+      - name: Attach zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/DeathDirge.zip
